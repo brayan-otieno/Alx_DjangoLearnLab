@@ -1,8 +1,5 @@
-# Delete the book
+from bookshelf.models import Book
 book.delete()
-
-# Try to retrieve all books again
-books = Book.objects.all()
-print(books)
-
-# Expected output: <QuerySet []>
+Book.objects.all()
+# Expected Output:
+# <QuerySet []>
