@@ -26,8 +26,9 @@ def query_samples():
         print("Author not found.")
 
     # List all books in a library (e.g., "Central Library")
+    library_name = "Central Library"  # Ensure this matches your data
     try:
-        library = Library.objects.get(name="Central Library")
+        library = Library.objects.get(name=library_name)  # Explicit query with library_name
         books_in_library = library.books.all()
         print(f"Books in {library.name}:")
         for book in books_in_library:
@@ -37,7 +38,7 @@ def query_samples():
 
     # Retrieve the librarian for a library (e.g., "Central Library")
     try:
-        # Make sure the 'library' variable is assigned before this section
+        # Ensure 'library' is valid before querying the librarian
         if 'library' in locals():
             librarian = Librarian.objects.get(library=library)
             print(f"Librarian for {library.name}: {librarian.name}")
