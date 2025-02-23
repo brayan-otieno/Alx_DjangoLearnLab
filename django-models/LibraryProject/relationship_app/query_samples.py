@@ -37,8 +37,12 @@ def query_samples():
 
     # Retrieve the librarian for a library (e.g., "Central Library")
     try:
-        librarian = Librarian.objects.get(library=library)
-        print(f"Librarian for {library.name}: {librarian.name}")
+        # Make sure the 'library' variable is assigned before this section
+        if 'library' in locals():
+            librarian = Librarian.objects.get(library=library)
+            print(f"Librarian for {library.name}: {librarian.name}")
+        else:
+            print("Library not found. Unable to retrieve librarian.")
     except Librarian.DoesNotExist:
         print("Librarian not found.")
 
