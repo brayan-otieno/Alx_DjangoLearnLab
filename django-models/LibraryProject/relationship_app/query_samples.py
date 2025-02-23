@@ -16,8 +16,9 @@ from relationship_app.models import Author, Book, Library, Librarian
 
 def query_samples():
     # Query all books by a specific author (e.g., "J.K. Rowling")
+    author_name = "J.K. Rowling"  # Ensure this matches your data
     try:
-        author = Author.objects.get(name="J.K. Rowling")
+        author = Author.objects.get(name=author_name)  # Using the variable author_name here
         books_by_author = Book.objects.filter(author=author)
         print(f"Books by {author.name}:")
         for book in books_by_author:
