@@ -1,34 +1,34 @@
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework import generics
+from .models import Book
+from .serializers import BookSerializer
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
+# List all books
+class BookListView(generics.ListCreateAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]  # Allows read-only for unauthenticated users
+
+# Retrieve a single book by ID
+class BookDetailView(generics.RetrieveAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]  # Allows read-only for unauthenticated users
+
+# Add a new book
 class BookCreateView(generics.CreateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # Restricts creation to authenticated users
 
-    def perform_create(self, serializer):
-        # Custom logic (for example, add additional fields)
-        serializer.save()
-
-    # Custom validation can be added here
-    def create(self, request, *args, **kwargs):
-        data = request.data
-        if 'title' not in data:
-            return Response({"detail": "Title is required."}, status=status.HTTP_400_BAD_REQUEST)
-        return super().create(request, *args, **kwargs)
-
+# Update an existing book
 class BookUpdateView(generics.UpdateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # Restricts updates to authenticated users
 
-    def perform_update(self, serializer):
-        # Additional custom update logic if necessary
-        serializer.save()
-
-    def update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if instance.is_archived:
-            return Response({"detail": "This book cannot be updated."}, status=status.HTTP_400_BAD_REQUEST)
-        return super().update(request, *args, **kwargs)
+# Delete a book
+class BookDeleteView(generics.DestroyAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticated]  # Restricts deletion to authenticated users
