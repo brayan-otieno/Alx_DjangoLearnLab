@@ -3,7 +3,7 @@ from .models import Book, Author
 from datetime import date
 
 
-class BookSerializers(serializers.ModelSerializer):
+class BookSerializer(serializers.ModelSerializer):  # Renamed from BookSerializers to BookSerializer
     """
     Serializes the Book model. It includes validation to ensure that the
     publication year is not in the future.
@@ -24,8 +24,8 @@ class AuthorSerializer(serializers.ModelSerializer):
     Serializes the Author model along with their related books.
     The books field is a nested serializer that uses BookSerializer.
     """
-    books = BookSerializers(many=True, read_only=True)
+    books = BookSerializer(many=True, read_only=True)  # Use 'books' as per the related_name
 
     class Meta:
         model = Author 
-        fields = ['name', 'books'] 
+        fields = ['name', 'books']
