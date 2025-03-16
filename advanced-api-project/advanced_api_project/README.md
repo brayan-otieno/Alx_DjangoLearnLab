@@ -19,3 +19,20 @@
 ### Delete Book (DELETE /books/<int:pk>/delete/)
 - Deletes a book by its ID.
 - Only available to authenticated users.
+
+## Testing Strategy
+
+1. **Test Cases**:
+   - Created tests for CRUD operations (Create, Read, Update, Delete) for the Book API.
+   - Verified filtering by author and ordering by title.
+   - Tested authentication/permissions for the endpoints.
+   
+2. **Running Tests**:
+   - To run the tests, use the following command:
+     ```
+     python manage.py test api
+     ```
+
+3. **Interpreting Results**:
+   - If all tests pass, you should see `OK` next to each test case.
+   - In case of failures, the output will provide details about which test failed and why.
