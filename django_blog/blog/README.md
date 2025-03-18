@@ -14,3 +14,24 @@
 - Register a new user at `/register`.
 - Login at `/login`.
 - View and edit your profile at `/profile`.
+
+# Blog Post Management Features
+
+This project includes CRUD (Create, Read, Update, Delete) functionality for blog posts.
+
+## Features
+1. **Create Post**: Authenticated users can create new posts.
+2. **Read Post**: All users can view posts.
+3. **Update Post**: Only the author can edit their posts.
+4. **Delete Post**: Only the author can delete their posts.
+
+## Usage
+- **List Posts**: Visit `/posts/`.
+- **Create Post**: Visit `/posts/new/`.
+- **View Post**: Visit `/posts/<int:pk>/`.
+- **Edit Post**: Visit `/posts/<int:pk>/edit/`.
+- **Delete Post**: Visit `/posts/<int:pk>/delete/`.
+
+## Permissions
+- Only authenticated users can create, edit, or delete posts.
+- Only the author of a post can edit or delete it.
