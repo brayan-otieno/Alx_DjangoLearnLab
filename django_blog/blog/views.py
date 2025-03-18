@@ -6,7 +6,6 @@ from .forms import RegisterForm
 from django.views.generic import ListView, DeleteView, CreateView, UpdateView, DetailView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib import messages  # For success messages
 from .models import Post
 
 # List view: displays all posts
@@ -31,10 +30,6 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         form.instance.author = self.request.user
         return super().form_valid(form)
 
-    # Redirect to the post detail page after successfully creating the post
-    def get_success_url(self):
-        return reverse_lazy('post-detail', kwargs={'pk': self.object.pk})
-
 # Update view: allows authors to edit their posts
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
@@ -46,25 +41,16 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         post = self.get_object()
         return self.request.user == post.author
 
-    # Redirect to the post detail page after successfully updating the post
-    def get_success_url(self):
-        return reverse_lazy('post-detail', kwargs={'pk': self.object.pk})
-
 # Delete view: allows authors to delete their posts
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     template_name = 'blog/post_confirm_delete.html'
-    success_url = reverse_lazy('blog:post-list')
+    success_url = reverse_lazy('blog:post_list')
 
     # Ensure that only the author can delete their post
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
-
-    # Provide a success message after deletion
-    def delete(self, request, *args, **kwargs):
-        messages.success(request, "Your post has been deleted successfully.")
-        return super().delete(request, *args, **kwargs)
 
 
 # Register view: handles user registration
@@ -87,9 +73,7 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            # Redirect to the URL the user came from, or profile page if not available
-            next_url = request.GET.get('next', 'profile')
-            return redirect(next_url)
+            return redirect('profile')
         else:
             return render(request, 'blog/login.html', {'error': 'Invalid credentials'})
     return render(request, 'blog/login.html')
@@ -108,7 +92,6 @@ def profile(request):
         form = UserChangeForm(request.POST, instance=user)
         if form.is_valid():
             form.save()  # Save changes to user info
-            messages.success(request, 'Your profile has been updated.')  # Success message
             return redirect('profile')  # Redirect to the profile page after saving
     else:
         form = UserChangeForm(instance=user)
