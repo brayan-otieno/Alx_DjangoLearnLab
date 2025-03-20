@@ -1,0 +1,9 @@
+<!-- search_results.html -->
+<h1>Search Results</h1>
+<ul>
+    {% for post in results %}
+        <li><a href="{% url 'post-detail' pk=post.pk %}">{{ post.title }}</a></li>
+    {% empty %}
+        <li>No results found.</li>
+    {% endfor %}
+</ul>

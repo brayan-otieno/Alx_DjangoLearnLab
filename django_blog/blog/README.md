@@ -35,3 +35,21 @@ This project includes CRUD (Create, Read, Update, Delete) functionality for blog
 ## Permissions
 - Only authenticated users can create, edit, or delete posts.
 - Only the author of a post can edit or delete it.
+
+# Comment Functionality
+
+This feature allows users to leave comments on blog posts. Authenticated users can add, edit, and delete their comments.
+
+## Features
+1. **Add Comment**: Authenticated users can add comments to blog posts.
+2. **Edit Comment**: Only the comment author can edit their comments.
+3. **Delete Comment**: Only the comment author can delete their comments.
+
+## Usage
+- **Add Comment**: Visit `/posts/<int:post_id>/comments/new/`.
+- **Edit Comment**: Visit `/comments/<int:pk>/edit/`.
+- **Delete Comment**: Visit `/comments/<int:pk>/delete/`.
+
+## Permissions
+- Only authenticated users can add, edit, or delete comments.
+- Only the comment author can edit or delete their comments.
