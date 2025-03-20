@@ -53,3 +53,19 @@ This feature allows users to leave comments on blog posts. Authenticated users c
 ## Permissions
 - Only authenticated users can add, edit, or delete comments.
 - Only the comment author can edit or delete their comments.
+
+# Advanced Features: Tagging and Search Functionality
+
+This project includes tagging and search functionalities to enhance content organization and discoverability.
+
+## Features
+1. **Tagging**: Users can add tags to blog posts to categorize content.
+2. **Search**: Users can search for posts by title, content, or tags.
+
+## Usage
+- **Add Tags**: When creating or editing a post, enter tags separated by commas.
+- **Search Posts**: Use the search bar to find posts by keywords or tags.
+
+## URL Patterns
+- **Search**: `/search/`
+- **Posts by Tag**: `/tags/<tag_name>/`

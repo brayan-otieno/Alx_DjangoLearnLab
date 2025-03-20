@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Profile
-from .models import Post, Comment
+from .models import Post, Comment, Tag
 
 class CommentForm(forms.ModelForm):
     class Meta:
@@ -30,6 +30,20 @@ class RegisterForm(forms.ModelForm):
         fields = ['username', 'password', 'email']
 
 class PostForm(forms.ModelForm):
+    tags = forms.CharField(max_length=255, required=False, help_text="Enter tags separated by commas.")
     class Meta:
         model = Post
-        fields = ['title', 'content']
+        fields = ['title', 'content', 'tags']
+
+    def save(self, commit=True):
+        post = super().save(commit=False)
+        if commit:
+            post.save()
+            # Add tags to the post
+            tags = self.cleaned_data['tags']
+            if tags:
+                tag_list = [tag.strip() for tag in tags.split(',')]
+                for tag_name in tag_list:
+                    tag, created = Tag.objects.get_or_create(name=tag_name)
+                    post.tags.add(tag)
+        return post    

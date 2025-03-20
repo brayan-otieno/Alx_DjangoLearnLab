@@ -14,12 +14,14 @@ from django.db.models import Q
 def search(request):
     query = request.GET.get('q')
     if query:
-        results = Post.objects.filter(
-            Q(title__icontains=query) | Q(content__icontains=query)
-        )
+        posts = Post.objects.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(tags__name__icontains=query)
+        ).distinct()
     else:
-        results = Post.objects.all()
-    return render(request, 'blog/search_results.html', {'results': results})
+        posts = Post.objects.all()
+    return render(request, 'blog/search_results.html', {'posts': posts, 'query': query})
 
 class CommentCreateView(CreateView):
     model = Comment
