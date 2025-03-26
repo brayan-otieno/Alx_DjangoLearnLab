@@ -13,18 +13,18 @@ class FollowUserView(generics.GenericAPIView):
     
     def post(self, request, user_id, *args, **kwargs):
         user_to_follow = get_object_or_404(CustomUser, id=user_id)
-        if request.user.follow(user_to_follow):
-            return Response({'status': 'following'}, status=status.HTTP_200_OK)
-        return Response({'error': 'Unable to follow user'}, status=status.HTTP_400_BAD_REQUEST)
+        request.user.following.add(user_to_follow)  # Follow the user
+        return Response({'status': 'following'}, status=status.HTTP_200_OK)
+
 
 class UnfollowUserView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
     
     def post(self, request, user_id, *args, **kwargs):
         user_to_unfollow = get_object_or_404(CustomUser, id=user_id)
-        if request.user.unfollow(user_to_unfollow):
-            return Response({'status': 'unfollowed'}, status=status.HTTP_200_OK)
-        return Response({'error': 'Unable to unfollow user'}, status=status.HTTP_400_BAD_REQUEST)
+        request.user.following.remove(user_to_unfollow)  # Unfollow the user
+        return Response({'status': 'unfollowed'}, status=status.HTTP_200_OK)
+
 
 class UserFollowingListView(generics.ListAPIView):
     serializer_class = UserProfileWithFollowsSerializer
@@ -33,6 +33,7 @@ class UserFollowingListView(generics.ListAPIView):
     def get_queryset(self):
         user = get_object_or_404(CustomUser, id=self.kwargs['user_id'])
         return user.following.all()
+
 
 class UserFollowersListView(generics.ListAPIView):
     serializer_class = UserProfileWithFollowsSerializer
