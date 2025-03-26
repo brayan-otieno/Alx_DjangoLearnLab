@@ -1,9 +1,9 @@
 from rest_framework import viewsets, generics, status
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from .models import Post, Comment
 from .serializers import (PostSerializer, PostCreateSerializer, 
-                         CommentSerializer, CommentCreateSerializer)
+                          CommentSerializer, CommentCreateSerializer)
 from .permissions import IsAuthorOrReadOnly
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -11,7 +11,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 
 class UserFeedView(generics.ListAPIView):
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # Ensure only authenticated users can access
 
     def get_queryset(self):
         # Get posts from users the current user follows
@@ -59,7 +59,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, post=post)
 
 class LikePostView(generics.GenericAPIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]  # Updated to require authentication
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
