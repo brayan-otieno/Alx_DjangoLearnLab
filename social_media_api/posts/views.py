@@ -2,8 +2,8 @@ from rest_framework import viewsets, generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from .models import Post, Comment
-from .serializers import (PostSerializer, PostCreateSerializer, 
-                          CommentSerializer, CommentCreateSerializer)
+from .serializers import (PostSerializer, PostCreateSerializer,
+                         CommentSerializer, CommentCreateSerializer)
 from .permissions import IsAuthorOrReadOnly
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -12,7 +12,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 class UserFeedView(generics.ListAPIView):
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]  # Ensure only authenticated users can access
-
+    
     def get_queryset(self):
         # Get posts from users the current user follows
         following_users = self.request.user.following.all()
@@ -39,14 +39,14 @@ class PostViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
-
+    
     def get_queryset(self):
         post_id = self.kwargs.get('post_id')
         if post_id:
             # If a post_id is provided, return comments related to that post
             return Comment.objects.filter(post_id=post_id)
         # If no post_id is provided, return all comments
-        return Comment.objects.all()  # This satisfies the check looking for `Comment.objects.all()`
+        return Comment.objects.all()
 
     def get_serializer_class(self):
         # Use a different serializer for create, update, and partial_update
@@ -66,7 +66,6 @@ class LikePostView(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         post = self.get_object()
         user = request.user
-
         if post.likes.filter(id=user.id).exists():
             post.likes.remove(user)
             return Response({'status': 'unliked'}, status=status.HTTP_200_OK)
