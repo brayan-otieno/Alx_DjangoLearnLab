@@ -22,7 +22,7 @@ class UserFeedView(generics.ListAPIView):
 # Post ViewSet: For handling post CRUD operations
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
-    permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly, IsAuthenticated]  # Added IsAuthenticated here
+    permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]  # Only one permission for handling both authentication and author checks
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['author']
     search_fields = ['title', 'content']
@@ -41,7 +41,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
 # Comment ViewSet: For handling comment CRUD operations
 class CommentViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly, IsAuthenticated]  # Added IsAuthenticated here
+    permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]  # Only authenticated users can modify comments
     
     def get_queryset(self):
         post_id = self.kwargs.get('post_id')
