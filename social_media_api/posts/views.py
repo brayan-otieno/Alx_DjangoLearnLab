@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from .models import Post, Comment
 from .serializers import (PostSerializer, PostCreateSerializer,
                          CommentSerializer, CommentCreateSerializer)
-from .permissions import IsAuthorOrReadOnly, IsAuthenticated
+from .permissions import IsAuthorOrReadOnly
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -12,7 +12,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 # User Feed View: Get posts from users the current user follows
 class UserFeedView(generics.ListAPIView):
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticated]  # Ensure only authenticated users can access
+    permission_classes = [permissions.IsAuthenticated]  # Ensure only authenticated users can access
     
     def get_queryset(self):
         # Get posts from users the current user follows
