@@ -2,8 +2,46 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
-from .serializers import UserSerializer, RegisterSerializer, LoginSerializer
+from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, UserProfileWithFollowsSerializer
+from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+from .models import CustomUser
 
+
+class FollowUserView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, user_id, *args, **kwargs):
+        user_to_follow = get_object_or_404(CustomUser, id=user_id)
+        if request.user.follow(user_to_follow):
+            return Response({'status': 'following'}, status=status.HTTP_200_OK)
+        return Response({'error': 'Unable to follow user'}, status=status.HTTP_400_BAD_REQUEST)
+
+class UnfollowUserView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, user_id, *args, **kwargs):
+        user_to_unfollow = get_object_or_404(CustomUser, id=user_id)
+        if request.user.unfollow(user_to_unfollow):
+            return Response({'status': 'unfollowed'}, status=status.HTTP_200_OK)
+        return Response({'error': 'Unable to unfollow user'}, status=status.HTTP_400_BAD_REQUEST)
+
+class UserFollowingListView(generics.ListAPIView):
+    serializer_class = UserProfileWithFollowsSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = get_object_or_404(CustomUser, id=self.kwargs['user_id'])
+        return user.following.all()
+
+class UserFollowersListView(generics.ListAPIView):
+    serializer_class = UserProfileWithFollowsSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = get_object_or_404(CustomUser, id=self.kwargs['user_id'])
+        return user.followers.all()
+    
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
 

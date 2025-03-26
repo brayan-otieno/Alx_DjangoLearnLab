@@ -1,6 +1,6 @@
 from rest_framework import viewsets, generics, status
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from .models import Post, Comment
 from .serializers import (PostSerializer, PostCreateSerializer, 
                          CommentSerializer, CommentCreateSerializer)
@@ -8,6 +8,15 @@ from .permissions import IsAuthorOrReadOnly
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+
+class UserFeedView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Get posts from users the current user follows
+        following_users = self.request.user.following.all()
+        return Post.objects.filter(author__in=following_users).order_by('-created_at')
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
