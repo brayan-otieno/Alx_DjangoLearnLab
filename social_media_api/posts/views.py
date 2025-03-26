@@ -59,7 +59,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, post=post)
 
 class LikePostView(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]  # Updated to require authentication
+    permission_classes = [IsAuthenticated]  # Ensure authentication is required
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
