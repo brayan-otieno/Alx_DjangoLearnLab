@@ -18,8 +18,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        # Create user using the create_user method for password hashing and validation
-        user = CustomUser.objects.create_user(
+        # Create user using get_user_model().objects.create_user() to ensure proper password hashing and validation
+        user = get_user_model().objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password']
