@@ -1,7 +1,6 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from django.contrib.auth import authenticate
 from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, UserProfileWithFollowsSerializer
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
@@ -42,7 +41,16 @@ class UserFollowersListView(generics.ListAPIView):
     def get_queryset(self):
         user = get_object_or_404(CustomUser, id=self.kwargs['user_id'])
         return user.followers.all()
-    
+
+
+class UserListView(generics.ListAPIView):  # Added this view to list all users
+    serializer_class = UserProfileWithFollowsSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return CustomUser.objects.all()  # This line is now included
+
+
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
 
