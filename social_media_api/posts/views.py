@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 
+# User Feed View: Get posts from users the current user follows
 class UserFeedView(generics.ListAPIView):
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]  # Ensure only authenticated users can access
@@ -18,6 +19,7 @@ class UserFeedView(generics.ListAPIView):
         following_users = self.request.user.following.all()
         return Post.objects.filter(author__in=following_users).order_by('-created_at')
 
+# Post ViewSet: For handling post CRUD operations
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
@@ -37,6 +39,7 @@ class PostViewSet(viewsets.ModelViewSet):
         # Assign the author as the currently logged-in user
         serializer.save(author=self.request.user)
 
+# Comment ViewSet: For handling comment CRUD operations
 class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
     
@@ -58,6 +61,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         post = get_object_or_404(Post, id=self.kwargs.get('post_id'))
         serializer.save(author=self.request.user, post=post)
 
+# Like Post View: For liking/unliking posts
 class LikePostView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]  # Ensure authentication is required
     queryset = Post.objects.all()
