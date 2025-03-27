@@ -15,7 +15,6 @@ urlpatterns = [
          CommentViewSet.as_view({'get': 'retrieve', 'put': 'update', 
                                  'patch': 'partial_update', 'delete': 'destroy'}), 
          name='comment-detail'),
-    # Removed LikePostView and UnlikePostView as ToggleLikePostView is handling them now
     path('feed/', UserFeedView.as_view(), name='user-feed'),
     path('posts/<int:pk>/likes/', PostLikesListView.as_view(), name='post-likes'),
 ]

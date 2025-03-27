@@ -2,7 +2,8 @@ from rest_framework import viewsets, generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from django.shortcuts import get_object_or_404
-from django.utils import timezone  # Ensure timezone is imported for notification timestamp
+from django.utils import timezone
+from django.contrib.contenttypes.models import ContentType
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from notifications.models import Notification
@@ -20,6 +21,7 @@ class UserFeedView(generics.ListAPIView):
         # Get posts from users the current user follows
         following_users = self.request.user.following.all()
         return Post.objects.filter(author__in=following_users).order_by('-created_at')
+
 
 # Post ViewSet: For handling post CRUD operations
 class PostViewSet(viewsets.ModelViewSet):
@@ -40,6 +42,7 @@ class PostViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Assign the author as the currently logged-in user
         serializer.save(author=self.request.user)
+
 
 # Comment ViewSet: For handling comment CRUD operations
 class CommentViewSet(viewsets.ModelViewSet):
@@ -63,6 +66,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         post = get_object_or_404(Post, id=self.kwargs.get('post_id'))
         serializer.save(author=self.request.user, post=post)
 
+
 # Combined Like/Unlike Post View: For liking and unliking posts
 class ToggleLikePostView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
@@ -82,16 +86,21 @@ class ToggleLikePostView(generics.GenericAPIView):
         else:
             # If the like does not exist, create a new like
             like = Like.objects.create(user=user, post=post)
-            # Create notification for the post author
-            if user != post.author:
-                Notification.objects.create(
+            
+            # Create notification for the post author if the user is not the post author
+            if user != post.author:  # Don't send notification to the person who liked the post
+                notification = Notification.objects.create(
                     recipient=post.author,
                     actor=user,
                     verb="liked your post",
-                    target=post,
+                    target_content_type=ContentType.objects.get_for_model(Post),
+                    target_object_id=post.id,
                     timestamp=timezone.now()  # Ensure timestamp is set to the current time
                 )
+                notification.save()
+
             return Response(self.get_serializer(like).data, status=status.HTTP_201_CREATED)
+
 
 # Post Likes List View: For listing likes on a post
 class PostLikesListView(generics.ListAPIView):
