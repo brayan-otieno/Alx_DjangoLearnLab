@@ -9,7 +9,7 @@ class Notification(models.Model):
     actor = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     verb = models.CharField(max_length=255)
     read = models.BooleanField(default=False)
-    created_at = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(default=timezone.now)
     
     # Generic foreign key to any related object
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
@@ -17,7 +17,7 @@ class Notification(models.Model):
     target = GenericForeignKey('content_type', 'object_id')
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['-timestamp']  
 
     def __str__(self):
         return f"{self.actor.username} {self.verb}"
