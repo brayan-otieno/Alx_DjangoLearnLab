@@ -1,13 +1,15 @@
 from rest_framework import viewsets, generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from .models import Post, Comment, Like
-from .serializers import PostSerializer, PostCreateSerializer, CommentSerializer, CommentCreateSerializer, LikeSerializer
-from .permissions import IsAuthorOrReadOnly
 from django.shortcuts import get_object_or_404
+from django.utils import timezone  # Ensure timezone is imported for notification timestamp
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from notifications.models import Notification
+from .models import Post, Comment, Like
+from .serializers import PostSerializer, PostCreateSerializer, CommentSerializer, CommentCreateSerializer, LikeSerializer
+from .permissions import IsAuthorOrReadOnly
+
 
 # User Feed View: Get posts from users the current user follows
 class UserFeedView(generics.ListAPIView):
@@ -86,7 +88,8 @@ class ToggleLikePostView(generics.GenericAPIView):
                     recipient=post.author,
                     actor=user,
                     verb="liked your post",
-                    target=post
+                    target=post,
+                    timestamp=timezone.now()  # Ensure timestamp is set to the current time
                 )
             return Response(self.get_serializer(like).data, status=status.HTTP_201_CREATED)
 
