@@ -2,8 +2,7 @@ from rest_framework import viewsets, generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from .models import Post, Comment, Like
-from .serializers import (PostSerializer, PostCreateSerializer,
-                         CommentSerializer, CommentCreateSerializer, LikeSerializer)
+from .serializers import PostSerializer, PostCreateSerializer, CommentSerializer, CommentCreateSerializer, LikeSerializer
 from .permissions import IsAuthorOrReadOnly
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -64,26 +63,11 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 # Like Post View: For liking/unliking posts
 class LikePostView(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]  # Ensure authentication is required
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-
-    def post(self, request, *args, **kwargs):
-        post = self.get_object()
-        user = request.user
-        if post.likes.filter(id=user.id).exists():
-            post.likes.remove(user)
-            return Response({'status': 'unliked'}, status=status.HTTP_200_OK)
-        else:
-            post.likes.add(user)
-            return Response({'status': 'liked'}, status=status.HTTP_200_OK)
-
-class LikePostView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = LikeSerializer
 
     def post(self, request, post_id, *args, **kwargs):
-        post = get_object_or_404(Post, id=post_id)
+        post = get_object_or_404(Post, pk=post_id)  # Ensure post is retrieved by pk
         user = request.user
         
         # Check if like already exists
@@ -99,13 +83,15 @@ class LikePostView(generics.GenericAPIView):
                     target=post
                 )
             return Response(self.get_serializer(like).data, status=status.HTTP_201_CREATED)
+        
         return Response({'error': 'Post already liked'}, status=status.HTTP_400_BAD_REQUEST)
 
+# Unlike Post View: For unliking posts
 class UnlikePostView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, post_id, *args, **kwargs):
-        post = get_object_or_404(Post, id=post_id)
+        post = get_object_or_404(Post, pk=post_id)  # Ensure post is retrieved by pk
         user = request.user
         
         try:
@@ -115,10 +101,11 @@ class UnlikePostView(generics.GenericAPIView):
         except Like.DoesNotExist:
             return Response({'error': 'Post not liked'}, status=status.HTTP_400_BAD_REQUEST)
 
+# Post Likes List View: For listing likes on a post
 class PostLikesListView(generics.ListAPIView):
     serializer_class = LikeSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        post = get_object_or_404(Post, id=self.kwargs['post_id'])
+        post = get_object_or_404(Post, pk=self.kwargs['post_id'])  # Ensure post is retrieved by pk
         return Like.objects.filter(post=post)
