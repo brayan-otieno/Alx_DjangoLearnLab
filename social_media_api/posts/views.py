@@ -61,8 +61,8 @@ class CommentViewSet(viewsets.ModelViewSet):
         post = get_object_or_404(Post, id=self.kwargs.get('post_id'))
         serializer.save(author=self.request.user, post=post)
 
-# Like Post View: For liking/unliking posts
-class LikePostView(generics.GenericAPIView):
+# Combined Like/Unlike Post View: For liking and unliking posts
+class ToggleLikePostView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = LikeSerializer
 
@@ -71,10 +71,16 @@ class LikePostView(generics.GenericAPIView):
         user = request.user
         
         # Check if like already exists
-        like, created = Like.objects.get_or_create(user=user, post=post)
-        
-        if created:
-            # Create notification for post author
+        like = Like.objects.filter(user=user, post=post).first()  # Retrieve existing like, if any
+
+        if like:
+            # If the like exists, delete it (unlike)
+            like.delete()
+            return Response({'status': 'unliked'}, status=status.HTTP_200_OK)
+        else:
+            # If the like does not exist, create a new like
+            like = Like.objects.create(user=user, post=post)
+            # Create notification for the post author
             if user != post.author:
                 Notification.objects.create(
                     recipient=post.author,
@@ -83,23 +89,6 @@ class LikePostView(generics.GenericAPIView):
                     target=post
                 )
             return Response(self.get_serializer(like).data, status=status.HTTP_201_CREATED)
-        
-        return Response({'error': 'Post already liked'}, status=status.HTTP_400_BAD_REQUEST)
-
-# Unlike Post View: For unliking posts
-class UnlikePostView(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, post_id, *args, **kwargs):
-        post = get_object_or_404(Post, pk=post_id)  # Ensure post is retrieved by pk
-        user = request.user
-        
-        try:
-            like = Like.objects.get(user=user, post=post)
-            like.delete()
-            return Response({'status': 'unliked'}, status=status.HTTP_200_OK)
-        except Like.DoesNotExist:
-            return Response({'error': 'Post not liked'}, status=status.HTTP_400_BAD_REQUEST)
 
 # Post Likes List View: For listing likes on a post
 class PostLikesListView(generics.ListAPIView):
